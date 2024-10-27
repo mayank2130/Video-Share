@@ -13,6 +13,7 @@ import {
 import { redirect } from "next/navigation";
 import React from "react";
 import Sidebar from "@/components/global/sidebar";
+import GlobalHeader from "@/components/global/global-header";
 
 type Props = {
   params: { workspaceId: string };
@@ -20,8 +21,8 @@ type Props = {
 };
 
 const Layout = async ({ params, children }: Props) => {
-  const layoutParams  = await params; // Wait for params to be fully resolved
-  const { workspaceId } = layoutParams ;
+  const layoutParams = await params; // Wait for params to be fully resolved
+  const { workspaceId } = layoutParams;
 
   const auth = await onAuthenticateUser();
   if (!auth.user?.workspace) redirect("/auth/sign-in");
@@ -46,19 +47,23 @@ const Layout = async ({ params, children }: Props) => {
     queryFn: () => getAllUserVideos(workspaceId),
   });
   await query.prefetchQuery({
-    queryKey: ['user-workspaces'],
+    queryKey: ["user-workspaces"],
     queryFn: () => getWorkSpaces(),
-  })
+  });
 
   await query.prefetchQuery({
-    queryKey: ['user-notifications'],
+    queryKey: ["user-notifications"],
     queryFn: () => getNotifications(),
-  })
+  });
 
   return (
     <HydrationBoundary state={dehydrate(query)}>
       <div className="flex h-screen w-screen">
         <Sidebar activeWorkspaceId={workspaceId} />
+        <div className="w-full pt-28 p-6 overflow-y-scroll overflow-x-hidden">
+          <GlobalHeader workspace={hasAccess.data.workspace} />
+          <div className="mt-4">{children}</div>
+        </div>
       </div>
     </HydrationBoundary>
   );
