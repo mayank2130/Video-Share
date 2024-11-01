@@ -196,3 +196,44 @@ export const CreateWorkspace = async (name: string) => {
     return { status: 400 };
   }
 };
+
+export const renameFolders = async (folderId: string, name: string) => {
+  try {
+    const folder = await client.folder.update({
+      where: {
+        id: folderId,
+      },
+      data: {
+        name,
+      },
+    });
+
+    if (folder) {
+      return { status: 200, data: "Folder Renamed" };
+    }
+    return { status: 400, data: "Folder does not exist" };
+  } catch (error) {
+    return { status: 500, data: "Opps! Something went wrong!" };
+  }
+};
+
+export const createFolder = async (workspaceId: string) => {
+  try {
+    const isNewFolder = await client.workSpace.update({
+      where: {
+        id: workspaceId,
+      },
+      data: {
+        folders: {
+          create: { name: "Untitled" },
+        },
+      },
+    });
+
+    if (isNewFolder) {
+      return {status: 200, message: "New Folder Created!"}
+    }
+  } catch (error) {
+    return {status: 500, message: "Opps! Something went wrong!"}
+  }
+};
