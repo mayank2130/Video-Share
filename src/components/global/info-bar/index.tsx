@@ -17,7 +17,7 @@ const InfoBar = (props: Props) => {
           placeholder="Search for people, projects, tags & folders"
         />
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mr-5">
         <Button className="bg-[#9D9D9D] flex items-center gap-2">
           <UploadIcon size={20} />{" "}
           <span className="flex items-center gap-2">Upload</span>
