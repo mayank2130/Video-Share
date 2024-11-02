@@ -185,7 +185,7 @@ export const CreateWorkspace = async (name: string) => {
       });
 
       if (workspace) {
-        return { staus: 201, data: "Workspace Created" };
+        return { status: 201, data: "Workspace Created!" };
       }
     }
     return {
@@ -258,5 +258,27 @@ export const getFolderInfo = async (folderId: string) => {
     return { status: 400, data: null };
   } catch (error) {
     return { status: 500, data: null };
+  }
+};
+
+export const moveVideoLocation = async (
+  videoId: string,
+  workSpaceId: string,
+  folderId: string
+) => {
+  try {
+    const location = await client.video.update({
+      where: {
+        id: videoId,
+      },
+      data: {
+        folderId: folderId || null,
+        workSpaceId,
+      },
+    });
+    if (location) return { status: 200, data: "Folder changed successfully!" };
+    return { status: 404, data: "Workspace/folder was not found!" };
+  } catch (error) {
+    return { status: 500, data: "Opps! Something went wrong!" };
   }
 };
