@@ -231,9 +231,32 @@ export const createFolder = async (workspaceId: string) => {
     });
 
     if (isNewFolder) {
-      return {status: 200, message: "New Folder Created!"}
+      return { status: 200, message: "New Folder Created!" };
     }
   } catch (error) {
-    return {status: 500, message: "Opps! Something went wrong!"}
+    return { status: 500, message: "Opps! Something went wrong!" };
+  }
+};
+
+export const getFolderInfo = async (folderId: string) => {
+  try {
+    const folder = await client.folder.findUnique({
+      where: {
+        id: folderId,
+      },
+      select: {
+        name: true,
+        _count: {
+          select: {
+            videos: true,
+          },
+        },
+      },
+    });
+
+    if (folder) return { status: 200, data: folder };
+    return { status: 400, data: null };
+  } catch (error) {
+    return { status: 500, data: null };
   }
 };
