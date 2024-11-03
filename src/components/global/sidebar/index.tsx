@@ -1,5 +1,4 @@
 "use client";
-
 import { getWorkSpaces } from "@/actions/workspace";
 import {
   Select,
@@ -11,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { useQueryData } from "@/hooks/useQueryData";
+
 import { NotificationProps, WorkspaceProps } from "@/types/index.type";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -22,13 +21,15 @@ import Search from "../search";
 import { MENU_ITEMS } from "@/constants";
 import SidebarItem from "./sidebar-items";
 import { getNotifications } from "@/actions/user";
+import { useQueryData } from "@/hooks/useQueryData";
 import WorkspacePlaceholder from "./workspace-placeholder";
 import GlobalCard from "../global-card";
 import { Button } from "@/components/ui/button";
 import Loader from "../loader";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import InfoBar from "../info-bar";
-
+import { useDispatch } from "react-redux";
+import { WORKSPACES } from "@/redux/slices/workspaces";
 type Props = {
   activeWorkspaceId: string;
 };
@@ -36,6 +37,7 @@ type Props = {
 const Sidebar = ({ activeWorkspaceId }: Props) => {
   const router = useRouter();
   const pathName = usePathname();
+  const dispatch = useDispatch();
 
   const { data, isFetched } = useQueryData(["user-workspaces"], getWorkSpaces);
   const menuItems = MENU_ITEMS(activeWorkspaceId);
@@ -44,16 +46,21 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
     ["user-notifications"],
     getNotifications
   );
+
   const { data: workspace } = data as WorkspaceProps;
   const { data: count } = notifications as NotificationProps;
-
-  const currentWorspace = workspace.workspace.find(
-    (s) => s.id === activeWorkspaceId
-  );
 
   const onChangeActiveWorkspace = (value: string) => {
     router.push(`/dashboard/${value}`);
   };
+  const currentWorkspace = workspace.workspace.find(
+    (s) => s.id === activeWorkspaceId
+  );
+
+  if (isFetched && workspace) {
+    dispatch(WORKSPACES({ workspaces: workspace.workspace }));
+  }
+
   const SidebarSection = (
     <div className="bg-[#111111] flex-none relative p-4 h-full w-[250px] flex flex-col gap-4 items-center overflow-hidden">
       <div className="bg-[#111111] p-4 flex gap-2 justify-center items-center mb-4 absolute top-0 left-0 right-0 ">
@@ -72,7 +79,7 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
             <SelectLabel>Workspaces</SelectLabel>
             <Separator />
             {workspace.workspace.map((workspace) => (
-              <SelectItem key={workspace.id} value={workspace.id}>
+              <SelectItem value={workspace.id} key={workspace.id}>
                 {workspace.name}
               </SelectItem>
             ))}
@@ -91,7 +98,7 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
           </SelectGroup>
         </SelectContent>
       </Select>
-      {currentWorspace?.type === "PUBLIC" &&
+      {currentWorkspace?.type === "PUBLIC" &&
         workspace.subscription?.plan == "PRO" && (
           <Modal
             trigger={
@@ -122,17 +129,18 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
               title={item.title}
               key={item.title}
               notifications={
-                (item.title === "notifications" &&
+                (item.title === "Notifications" &&
                   count._count &&
                   count._count.notification) ||
                 0
               }
-            ></SidebarItem>
+            />
           ))}
         </ul>
       </nav>
       <Separator className="w-4/5" />
-      <p className="w-full text-[#9D9D9D] font-bold mt-4">Workspaces</p>
+      <p className="w-full text-[#9D9D9D] font-bold mt-4 ">Workspaces</p>
+
       {workspace.workspace.length === 1 && workspace.members.length === 0 && (
         <div className="w-full mt-[-10px]">
           <p className="text-[#3c3c3c] font-medium text-sm">
@@ -142,8 +150,9 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
           </p>
         </div>
       )}
+
       <nav className="w-full">
-        <ul className="h-[150px] overflow-auto overflow-x-hidden fade-layer">
+        <ul className="h-[150px] overflow-auto overflow-x-hidden fade-layer scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-500">
           {workspace.workspace.length > 0 &&
             workspace.workspace.map(
               (item) =>
@@ -179,21 +188,16 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
             ))}
         </ul>
       </nav>
+      <Separator className="w-4/5" />
       {workspace.subscription?.plan === "FREE" && (
         <GlobalCard
           title="Upgrade to Pro"
-          description="Unlock AI features like transcription, AI summat, and more."
-        >
-          <Button className="text-sm w-full mt-2">
-            <Loader color="#000" state={false}>
-              Upgrade
-            </Loader>
-          </Button>
-        </GlobalCard>
+          description=" Unlock AI features like transcription, AI summary, and more."
+          // footer={<PaymentButton />}
+        />
       )}
     </div>
   );
-
   return (
     <div className="full">
       <InfoBar />
