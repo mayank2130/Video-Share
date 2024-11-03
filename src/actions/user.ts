@@ -228,3 +228,23 @@ export const getVideoComments = async (Id: string) => {
     return { status: 400 }
   }
 }
+
+export const getUserProfile = async () => {
+  try {
+    const user = await currentUser()
+    if (!user) return { status: 404 }
+    const profileIdAndImage = await client.user.findUnique({
+      where: {
+        clerkid: user.id,
+      },
+      select: {
+        image: true,
+        id: true,
+      },
+    })
+
+    if (profileIdAndImage) return { status: 200, data: profileIdAndImage }
+  } catch (error) {
+    return { status: 400 }
+  }
+}
