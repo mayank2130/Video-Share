@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 import animate from "tailwindcss-animate";
 
 const config = {
@@ -75,7 +75,7 @@ const config = {
       },
     },
   },
-  plugins: [animate],
-} satisfies Config
+  plugins: [animate, require("tailwind-scrollbar")],
+} satisfies Config;
 
-export default config
+export default config;
