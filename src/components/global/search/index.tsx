@@ -8,7 +8,7 @@ import { User } from 'lucide-react'
 
 import React from 'react'
 import Loader from '../loader'
-// import { inviteMembers } from '@/actions/user'
+import { inviteMembers } from '@/actions/user'
 
 type Props = {
   workspaceId: string
@@ -24,8 +24,8 @@ const Search = ({ workspaceId }: Props) => {
 
   const { mutate, isPending } = useMutationData(
     ['invite-member'],
-    (data: { recieverId: string; email: string }) =>{}
-      // inviteMembers(workspaceId, data.recieverId, data.email)
+    (data: { recieverId: string; email: string }) =>
+      inviteMembers(workspaceId, data.recieverId, data.email)
   )
 
   return (
